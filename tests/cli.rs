@@ -1,18 +1,64 @@
 use assert_cmd::prelude::*;
 use predicates::prelude::*;
+use serde::Deserialize;
 use std::error::Error;
 use std::fs;
 use std::process::Command;
 
+// Esta struct coincide con el formato actualizado de Settings.toml
+#[derive(Deserialize)]
+struct TestSettings {
+    filename_base: String,
+    format: String,
+}
 
 fn setup() {
+    // Leemos el Settings.toml para armar el nombre completo del archivo y borrarlo
+    if let Ok(contents) = fs::read_to_string("Settings.toml") {
+        if let Ok(settings) = toml::from_str::<TestSettings>(&contents) {
+            // Armamos el nombre completo del archivo, igual que en main.rs
+            let filename = format!("{}.{}", settings.filename_base, settings.format);
+            fs::remove_file(filename).ok();
+            return; // Salimos después de borrarlo con éxito
+        }
+    }
+    
+    // Limpieza de respaldo por si no podemos leer el Settings.toml
     fs::remove_file("tareas.csv").ok();
+    fs::remove_file("tareas.json").ok();
+    fs::remove_file("tareas.txt").ok();
 }
+
+#[test]
+fn test_configuracion_default_se_il_file_manca() -> Result<(), Box<dyn Error>> {
+    // Escondemos temporalmente el archivo de configuración real
+    fs::rename("Settings.toml", "Settings.toml.bak").ok();
+    // Nos aseguramos de que el archivo default no exista
+    fs::remove_file("tareas.txt").ok();
+
+    // Corremos la aplicación
+    Command::cargo_bin("todo")?
+        .arg("listar")
+        .assert()
+        .success();
+
+    // Chequeamos que el archivo default ("tareas.txt") se haya creado
+    let default_file_exists = fs::metadata("tareas.txt").is_ok();
+    
+    // Limpieza: restauramos la config y borramos el archivo creado
+    fs::rename("Settings.toml.bak", "Settings.toml").ok();
+    fs::remove_file("tareas.txt").ok();
+
+    assert!(default_file_exists, "El archivo default 'tareas.txt' no se creó");
+
+    Ok(())
+}
+
 
 #[test]
 fn test_flujo_feliz() -> Result<(), Box<dyn Error>> {
     setup();
-    
+
     Command::cargo_bin("todo")?
         .arg("agregar")
         .arg("Comprar pan")
