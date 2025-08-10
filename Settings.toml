@@ -11,9 +11,14 @@ completar = "completar"
 importar_y_sumar = "importar"
 reemplazar_con_archivo = "cargar"
 ayuda = "explicar"
+desmarcar = "desmarcar"
+
 
 [explicaciones]
-# ... y así sucesivamente para las demás claves con 'ñ' si las tuvieras
 "añadir" = "Uso: añadir <descripción de la tarea>. Agrega una nueva tarea a la lista."
-listar = "Uso: listar. Muestra todas las tareas pendientes y completadas."
-completar = "Uso: completar <número de la tarea>. Marca una tarea como completada."
+listar = "Uso: ver. Muestra todas las tareas pendientes y completadas."
+marcar = "Uso: marcar <número de la tarea>. Marca una tarea como completada."
+importar_y_sumar = "Uso: importar_y_sumar <ruta_al_archivo>. Agrega tareas de un archivo a la lista actual."
+reemplazar_con_archivo = "Uso: reemplazar_con_archivo <ruta_al_archivo>. Borra la lista actual y la reemplaza con las tareas del archivo."
+ayuda = "Uso: ayuda <nombre_del_comando>. Muestra la ayuda para un comando específico."
+desmarcar = "Uso: desmarcar <número de la tarea>. Vuelve a marcar una tarea como pendiente."
