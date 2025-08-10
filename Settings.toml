@@ -1,4 +1,19 @@
-filename_base = "tareas"
+# Settings.toml
 
-#puede ser json o csv
-format = "json"
+[storage]
+filename_base = "tareas"
+format = "bincode"
+
+[comandos]
+"añadir" = "agregar" # <- Poner esta clave entre comillas
+listar = "listar"
+completar = "completar"
+importar_y_sumar = "importar"
+reemplazar_con_archivo = "cargar"
+ayuda = "explicar"
+
+[explicaciones]
+# ... y así sucesivamente para las demás claves con 'ñ' si las tuvieras
+"añadir" = "Uso: añadir <descripción de la tarea>. Agrega una nueva tarea a la lista."
+listar = "Uso: listar. Muestra todas las tareas pendientes y completadas."
+completar = "Uso: completar <número de la tarea>. Marca una tarea como completada."
