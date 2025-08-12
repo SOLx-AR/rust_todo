@@ -177,3 +177,44 @@ fn test_cargar_tareas_y_reemplazar() -> Result<(), Box<dyn Error>> {
     fs::remove_file(archivo_a_cargar)?;
     Ok(())
 }
+
+#[test]
+fn test_eliminar_tarea() -> Result<(), Box<dyn Error>> {
+    setup();
+    // Agregamos dos tareas
+    Command::cargo_bin("todo")?.arg("añadir").arg("Tarea 1").assert().success();
+    Command::cargo_bin("todo")?.arg("añadir").arg("Tarea 2").assert().success();
+
+    // Eliminamos la primera
+    Command::cargo_bin("todo")?.arg("eliminar").arg("1").assert().success();
+
+    // Verificamos que la Tarea 2 ahora sea la Tarea 1
+    Command::cargo_bin("todo")?
+        .arg("listar")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("[ ] 1: Tarea 2"))
+        .stdout(predicate::str::contains("Tarea 1").not());
+
+    Ok(())
+}
+
+#[test]
+fn test_eliminar_todas_las_tareas() -> Result<(), Box<dyn Error>> {
+    setup();
+    // 1. Agregamos una tarea para asegurarnos de que el archivo se cree.
+    Command::cargo_bin("todo")?.arg("añadir").arg("Tarea de prueba").assert().success();
+
+    // 2. Verificamos que el archivo de guardado ahora existe.
+    let settings = toml::from_str::<TestSettings>(&fs::read_to_string("Settings.toml")?)?;
+    let filename = format!("{}.{}", settings.storage.filename_base, settings.storage.format);
+    assert!(fs::metadata(&filename).is_ok(), "El archivo de tareas no se creó antes de eliminar.");
+
+    // 3. Ejecutamos el comando para eliminar todo.
+    Command::cargo_bin("todo")?.arg("eliminar_todas").assert().success();
+
+    // 4. Verificamos que el archivo de guardado ya NO existe.
+    assert!(!fs::metadata(&filename).is_ok(), "El archivo de tareas no fue eliminado.");
+
+    Ok(())
+}

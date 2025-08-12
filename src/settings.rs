@@ -18,6 +18,8 @@ fn default_comandos() -> HashMap<String, String> {
         ("importar".to_string(), "importar".to_string()),
         ("cargar".to_string(), "cargar".to_string()),
         ("ayuda".to_string(), "explicar".to_string()),
+        ("eliminar".to_string(), "eliminar".to_string()),
+        ("eliminar_todas".to_string(), "eliminar_todas".to_string()),
     ])
 }
 
@@ -30,6 +32,8 @@ fn default_explicaciones() -> HashMap<String, String> {
         ("importar".to_string(), "Uso: importar <archivo>. Agrega tareas de un archivo a la lista actual.".to_string()),
         ("cargar".to_string(), "Uso: cargar <archivo>. Reemplaza la lista actual con las tareas del archivo.".to_string()),
         ("explicar".to_string(), "Uso: explicar <comando>. Muestra la ayuda para un comando.".to_string()),
+        ("eliminar".to_string(), "Uso: eliminar <número>. Elimina una tarea de la lista.".to_string()),
+        ("eliminar_todas".to_string(), "Uso: eliminar_todas. Elimina todas las tareas.".to_string()),
     ])
 }
 

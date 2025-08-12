@@ -4,17 +4,21 @@
 pub mod commands;
 pub mod task;
 
+use commands::procesar_comando; 
+
 // 2. Importa todo lo que necesita la función `run`
 use crate::settings::Settings;
 use crate::storage::{Storage, CsvStorage, JsonStorage, TxtStorage, BincodeStorage};
-use commands::procesar_comando;
 use config::{Config, File};
 use dialoguer::{theme::ColorfulTheme, Select, Input};
 use std::collections::HashSet;
 use std::env;
 use std::error::Error;
+use console::Term;
 
 // 3. La función `run` ahora vive acá
+// en src/app/mod.rs
+
 pub fn run() -> Result<(), Box<dyn Error>> {
     let builder = Config::builder()
         .set_default("storage.filename_base", "tareas")?
@@ -41,20 +45,25 @@ pub fn run() -> Result<(), Box<dyn Error>> {
     
     let args: Vec<String> = env::args().collect();
     if args.len() > 1 {
-        // Modo para Tests
+        // --- Modo para Tests  ---
         let comando_usuario = &args[1];
         if let Some(comando_interno) = settings.comandos.get(comando_usuario) {
             let resto_args = &args[2..].join(" ");
+
             procesar_comando(comando_interno, resto_args, &mut tareas, &settings);
-            storage.save(&filename, &tareas)?;
+            
+            if comando_interno != "eliminar_todas" {
+                storage.save(&filename, &tareas)?;
+            }
         } else {
              println!("❌ Comando '{}' no reconocido.", comando_usuario);
         }
     } else {
-        // Modo Interactivo
+        // --- Modo Interactivo  ---
+        Term::stdout().clear_screen()?;
         println!("Bienvenido al gestor de tareas.");
         let comandos_con_parametro: HashSet<String> = [
-            "agregar".to_string(), "completar".to_string(), "desmarcar".to_string(), "importar".to_string(), "cargar".to_string()
+            "agregar".to_string(), "completar".to_string(), "desmarcar".to_string(), "importar".to_string(), "cargar".to_string(), "eliminar".to_string()
         ].iter().cloned().collect();
         let mut opciones_menu: Vec<String> = settings.comandos.keys().cloned().collect();
         opciones_menu.sort();
