@@ -1,4 +1,8 @@
-use std::io;
+
+use std::io::BufReader;
+use std::io::BufRead;
+use std::fs::File;
+use std::io::{self, Write};
 
 struct Tarea {
     descripcion: String,
@@ -12,10 +16,12 @@ impl Tarea {
     }
 }
 
+const RUTA_ARCHIVO: &str = "tareas.txt";
+
 fn main() {
     println!("Bienvenido al gestor de tareas");
 
-    let mut tareas: Vec<Tarea> = Vec::new();
+    let mut tareas: Vec<Tarea> = leer_tareas(RUTA_ARCHIVO);
 
     loop {
         println!("\ningresa un comando('agregar <descripcion>', 'listar','salir')");
@@ -28,6 +34,9 @@ fn main() {
 
         if entrada == "salir" {
             println!("\nSaliendo del gestor de tareas");
+            if let Err(e) = guardar_tareas(RUTA_ARCHIVO, &tareas) {
+                eprintln!("No se pudieron guardar las tareas: {e}");
+            }
             break;
         } else if entrada.starts_with("agregar ") {
             let descripcion = entrada[8..].trim();
@@ -37,6 +46,9 @@ fn main() {
                     completada: false,
                 });
                 println!("\nTarea agregada: {}", descripcion);
+                if let Err(e) = guardar_tareas(RUTA_ARCHIVO, &tareas) {
+                    eprintln!("No se pudieron guardar las tareas: {e}");
+                }
             } else {
                 println!("\nLa descripción de la tarea no puede estar vacía.");
             }
@@ -53,6 +65,9 @@ fn main() {
             if id > 0 && id <= tareas.len() {
                 tareas[id - 1].completada = true;
                 println!("\nTarea {} marcada como completada.", id);
+                if let Err(e) = guardar_tareas(RUTA_ARCHIVO, &tareas) {
+                    eprintln!("No se pudieron guardar las tareas: {e}");
+                }
             } else {
                 println!("\nID de tarea no válido.");
             }
@@ -70,6 +85,42 @@ fn listar_tareas(lista_de_tareas: &Vec<Tarea>) {
         tarea.mostrar(i + 1);
     }
 }
+
+
+// Guarda las tareas en un archivo de texto simple.
+// Formato por línea: "<0|1>\t<descripcion>"
+fn guardar_tareas(ruta: &str, tareas: &[Tarea]) -> io::Result<()> {
+    let mut archivo = File::create(ruta)?;
+    for t in tareas {
+        // Reemplaza saltos de línea en la descripción para mantener una línea por tarea.
+        let descripcion_segura = t.descripcion.replace('\n', " ");
+        let completada_flag = if t.completada { 1 } else { 0 };
+        writeln!(archivo, "{}\t{}", completada_flag, descripcion_segura)?;
+    }
+    Ok(())
+}
+
+fn leer_tareas(ruta: &str) -> Vec<Tarea> {
+    let mut tareas: Vec<Tarea> = Vec::new();
+    if let Ok(archivo) = File::open(ruta) {
+        let reader = BufReader::new(archivo);
+        for linea in reader.lines() {
+            if let Ok(linea) = linea {
+                let campos = linea.split('\t').collect::<Vec<&str>>();
+                if campos.len() > 1 {
+                    let completada = campos[0] == "1";
+                    let descripcion = campos[1..].join("\t");
+                    tareas.push(Tarea {
+                        descripcion,
+                        completada,
+                    });
+                }
+            }
+        }
+    }
+    tareas
+}
+
 
 /* 
     Desafio uno:
