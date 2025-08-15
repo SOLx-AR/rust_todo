@@ -1,87 +1,94 @@
-use std::io;
+//! Este programa permite al usuario gestionar tareas diarias, mediante adición, edición, listado, completado y eliminación de tareas.
+//! 
+//! Las tareas pueden ser categorizadas mediante Tags dinámicas, definidas por el usuario, y asignarle tres grados de prioridad. 
+//! 
+//! También se permite definir subtareas y, finalmente, emitir un reporte histórico de tareas agregadas, completadas, pendientes y eliminadas.
+//! 
+//! Las categorías, tareas y estadísticas persisten en archivos .JSON.
 
-struct Tarea {
-    descripcion: String,
-    completada: bool,
-}
+mod data;
+mod functions;
+mod json;
 
-impl Tarea {
-    fn mostrar(&self, id: usize) {
-        let estado = if self.completada { "[X]" } else { "[ ]" };
-        println!("{} {}: {}",estado, id, self.descripcion);
-    }
-}
+use std::io::{self};
+use data::*;
+use functions::*;
+use json::*;
+
+/// Punto de entrada de la aplicación.
+///
+/// Inicia el gestor de tareas, y despliega el menú para el usuario en línea de comandos en un bucle. Realiza los correspondientes llamados a las funciones y estructuras de datos definidas en los otros módulos. 
 
 fn main() {
-    println!("Bienvenido al gestor de tareas");
+    println!("---GESTOR DE TAREAS---");
+    let mut tasks: Vec<Task> = load_tasks();
+    let mut all_tags: Vec<String> = load_tags();
+    let mut stats: Statistics = load_stats();
 
-    let mut tareas: Vec<Tarea> = Vec::new();
+    loop { 
+        println!("\nIngrese un comando: ");
+        println!("\tagregar <descripción>\n\tcompletar <id>\n\teditar <id>\n\tlistar\n\teliminar <id>\n\treporte\n\tsalir");
+        let mut input = String::new();
+        io::stdin().read_line(&mut input).expect("Inténtelo nuevamente."); 
+        let input = input.trim();
 
-    loop {
-        println!("\ningresa un comando('agregar <descripcion>', 'listar','salir')");
-
-        let mut entrada = String::new();
-        io::stdin()
-            .read_line(&mut entrada)
-            .expect("Error al leer la entrada");
-        let entrada = entrada.trim();
-
-        if entrada == "salir" {
-            println!("\nSaliendo del gestor de tareas");
-            break;
-        } else if entrada.starts_with("agregar ") {
-            let descripcion = entrada[8..].trim();
-            if !descripcion.is_empty() {
-                tareas.push(Tarea {
-                    descripcion: descripcion.to_string(),
-                    completada: false,
-                });
-                println!("\nTarea agregada: {}", descripcion);
-            } else {
-                println!("\nLa descripción de la tarea no puede estar vacía.");
-            }
-        } else if entrada == "listar" {
-            listar_tareas(&tareas);
-        } else if entrada.starts_with("completar ") {
-            let id: usize = match entrada[10..].trim().parse() {
-                Ok(num) => num,
-                Err(_) => {
-                    println!("\nID inválido. Debe ser un número.");
-                    continue;
-                }
-            };
-            if id > 0 && id <= tareas.len() {
-                tareas[id - 1].completada = true;
-                println!("\nTarea {} marcada como completada.", id);
-            } else {
-                println!("\nID de tarea no válido.");
-            }
-        } else {
-            println!("\nComando no reconocido. Intenta de nuevo.");
+        match input { 
+            "salir" => {
+                println!("\n---FINALIZANDO GESTOR---");
+                save_tasks(&tasks);
+                save_tags(&all_tags);
+                save_stats(&stats);
+                break;
+            },
+            "listar" => list_tasks(&tasks),
+            "reporte" => show_stats(&stats),
+            input if input.starts_with("agregar ") => {
+                let description = input[7..].trim();
+                add_task(&mut tasks, description, &mut all_tags, &mut stats);
+                save_tasks(&tasks);
+                save_tags(&all_tags);
+                save_stats(&stats);
+            },
+            input if input.starts_with("completar ") => {
+                let id: usize = match input[9..].trim().parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("\nID no válido.");
+                        continue;
+                    },
+                };
+                complete_task(&mut tasks, id, &mut stats);
+                save_tasks(&tasks);
+                save_stats(&stats);
+            },
+            input if input.starts_with("editar ") => {
+                let id: usize = match input[7..].trim().parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("\nID no válido.");
+                        continue;
+                    },
+                };
+                edit_task(&mut tasks, id, &mut all_tags);
+                save_tasks(&tasks);
+                save_tags(&all_tags);
+                save_stats(&stats);
+            },
+            input if input.starts_with("eliminar ") => {
+                let id: usize = match input[9..].trim().parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("\nID no válido.");
+                        continue;
+                    },
+                };
+                remove_task(&mut tasks, id, &mut stats);
+                save_tasks(&tasks);
+                save_stats(&stats);
+            },
+            _ => {
+                println!("\nComando no reconocido. Inténtelo otra vez.");
+            },
         }
-
     }
 }
-
-fn listar_tareas(lista_de_tareas: &Vec<Tarea>) {
-    println!("\nLista de Tareas:");
-    
-    for (i, tarea) in lista_de_tareas.iter().enumerate() {
-        tarea.mostrar(i + 1);
-    }
-}
-
-/* 
-    Desafio uno:
-        Refactorizar el codigo con un match en vez de if, else if, else
-    
-    Desafio dos:
-        Guardar las tareas en un archivo
-
-    Desafio tres:
-        Investigar el crate serde y como se usaria para serializar y deserializar las tareas
-    
-    Desafio cuatro:
-        Cargar las tareas desde un archivo al iniciar el programa 
-
- */
