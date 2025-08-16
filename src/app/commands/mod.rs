@@ -4,7 +4,6 @@ use crate::storage::{Storage, BincodeStorage, CsvStorage, JsonStorage, TxtStorag
 use std::error::Error;
 use std::fs;
 
-// 1. Declara todos los archivos de comandos como submódulos públicos
 pub mod agregar;
 pub mod cargar;
 pub mod completar;
@@ -14,8 +13,9 @@ pub mod eliminar_todas;
 pub mod explicar;
 pub mod importar;
 pub mod listar;
+pub mod etiquetar;
+pub mod desetiquetar;
 
-// 2. El `procesar_comando` ahora está completo y es súper legible.
 pub fn procesar_comando(comando_interno: &str, args: &str, tareas: &mut Vec<Tarea>, settings: &Settings) -> bool {
     match comando_interno {
         "agregar" => agregar::ejecutar(args, tareas),
@@ -27,6 +27,8 @@ pub fn procesar_comando(comando_interno: &str, args: &str, tareas: &mut Vec<Tare
         "importar" => importar::ejecutar(args, tareas),
         "listar" => listar::ejecutar(args, tareas),
         "explicar" => explicar::ejecutar(args, settings),
+        "etiquetar" => etiquetar::ejecutar(args, tareas, settings),
+        "desetiquetar" => desetiquetar::ejecutar(args, tareas),
         _ => {
             println!("❌ Error interno: Comando '{}' no reconocido.", comando_interno);
             false
@@ -34,7 +36,6 @@ pub fn procesar_comando(comando_interno: &str, args: &str, tareas: &mut Vec<Tare
     }
 }
 
-// 3. Las funciones auxiliares que usan los comandos viven acá.
 pub fn cargar_desde_archivo(path: &str) -> Result<Vec<Tarea>, Box<dyn Error>> {
     if !fs::metadata(path).is_ok() {
         return Err(format!("No se pudo encontrar el archivo en la ruta '{}'", path).into());

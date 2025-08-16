@@ -8,7 +8,7 @@ pub fn ejecutar(args: &str, tareas: &mut Vec<Tarea>) -> bool {
                 let cantidad = tareas_cargadas.len();
                 *tareas = tareas_cargadas;
                 println!("✅ Se cargaron {} tareas. La lista anterior fue reemplazada.", cantidad);
-                true
+                true 
             }
             Err(e) => {
                 eprintln!("Error al cargar el archivo: {}", e);

@@ -28,25 +28,14 @@ mod tests {
     fn test_guardar_y_cargar_bincode() {
         let storage = BincodeStorage;
         let file_path = "test_temporal_tareas.bincode";
-
-        // Limpiamos el archivo antes y después
         let _ = std::fs::remove_file(file_path);
-
         let tareas_originales = vec![
-            Tarea { descripcion: "Tarea Bincode 1".to_string(), completada: false, ultimo_cambio: None },
-            Tarea { descripcion: "Tarea Bincode 2".to_string(), completada: true, ultimo_cambio: Some(chrono::Utc::now()) },
+            Tarea { descripcion: "Tarea Bincode 1".to_string(), completada: false, ultimo_cambio: None, tags: Vec::new() },
+            Tarea { descripcion: "Tarea Bincode 2".to_string(), completada: true, ultimo_cambio: Some(chrono::Utc::now()), tags: vec!["test".to_string()] },
         ];
-
-        // Probamos guardar
         assert!(storage.save(file_path, &tareas_originales).is_ok());
-
-        // Probamos cargar
         let tareas_cargadas = storage.load(file_path).unwrap();
-
-        // Verificamos que los datos coincidan
         assert_eq!(tareas_originales, tareas_cargadas);
-
-        // Limpiamos al final
         let _ = std::fs::remove_file(file_path);
     }
 }

@@ -6,6 +6,7 @@ pub fn ejecutar(args: &str, tareas: &mut Vec<Tarea>) -> bool {
             descripcion: args.to_string(),
             completada: false,
             ultimo_cambio: None,
+            tags: Vec::new(),
         });
         println!("✅ Tarea agregada.");
         true

@@ -14,6 +14,8 @@ ayuda = "explicar"
 desmarcar = "desmarcar"
 eliminar = "eliminar"
 eliminar_todas = "eliminar_todas"
+etiquetar = "etiquetar"
+desetiquetar = "desetiquetar"
 
 
 [explicaciones]
@@ -26,3 +28,8 @@ ayuda = "Uso: ayuda <nombre_del_comando>. Muestra la ayuda para un comando espec
 desmarcar = "Uso: desmarcar <número de la tarea>. Vuelve a marcar una tarea como pendiente."
 eliminar = "Uso: eliminar <número de tarea>. Elimina una tarea de la lista."
 eliminar_todas = "Uso: eliminar_todas. Elimina permanentemente todas las tareas y el archivo de guardado."
+etiquetar = "Uso: etiquetar <número de tarea> <nombre_del_tag>. Agrega una etiqueta a una tarea."
+desetiquetar = "Uso: desetiquetar <número de tarea> <nombre_del_tag>. Elimina una etiqueta de una tarea."
+
+[general]
+tags_validos = ["trabajo", "personal", "urgente", "estudio"]

@@ -26,3 +26,7 @@ path = "src/lib.rs"
 name = "todo"
 path = "src/main.rs"
 
+[[test]]
+name = "integracion_cli"
+path = "tests/cli/mod.rs"
+
