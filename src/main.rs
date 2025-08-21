@@ -1,87 +1,138 @@
 use std::io;
 
-struct Tarea {
-    descripcion: String,
-    completada: bool,
-}
+mod model;
 
-impl Tarea {
-    fn mostrar(&self, id: usize) {
-        let estado = if self.completada { "[X]" } else { "[ ]" };
-        println!("{} {}: {}",estado, id, self.descripcion);
-    }
-}
+use crate::model::Tareas;
 
 fn main() {
-    println!("Bienvenido al gestor de tareas");
+    println!("=== Bienvenido al gestor de tareas ===");
 
-    let mut tareas: Vec<Tarea> = Vec::new();
+    let mut tareas = Tareas::cargar();
+    tareas.listar();
 
     loop {
-        println!("\ningresa un comando('agregar <descripcion>', 'listar','salir')");
+        println!("\n* Ingrese comando (h para ayuda) ");
 
         let mut entrada = String::new();
         io::stdin()
             .read_line(&mut entrada)
             .expect("Error al leer la entrada");
-        let entrada = entrada.trim();
 
-        if entrada == "salir" {
-            println!("\nSaliendo del gestor de tareas");
-            break;
-        } else if entrada.starts_with("agregar ") {
-            let descripcion = entrada[8..].trim();
-            if !descripcion.is_empty() {
-                tareas.push(Tarea {
-                    descripcion: descripcion.to_string(),
-                    completada: false,
-                });
-                println!("\nTarea agregada: {}", descripcion);
-            } else {
-                println!("\nLa descripción de la tarea no puede estar vacía.");
+        let entrada: Vec<&str> = entrada.trim().split_whitespace().collect();
+
+        if entrada.is_empty() {
+            continue;
+        }
+        let comando = *entrada.first().unwrap_or(&"");
+        match comando {
+            "h" => {
+                println!(
+                    "\nComandos disponibles:
+  agregar          <descripcion>
+  completar        <id>
+  etiquetar        <id> <etiqueta>
+  priorizar        <id> <prioridad>
+  agregar_subtarea <parent id> <descripcion>
+  listar
+  reordenar
+  guardar
+  salir"
+                );
             }
-        } else if entrada == "listar" {
-            listar_tareas(&tareas);
-        } else if entrada.starts_with("completar ") {
-            let id: usize = match entrada[10..].trim().parse() {
-                Ok(num) => num,
-                Err(_) => {
+            "salir" => {
+                tareas.guardar();
+                println!("\nSaliendo del gestor de tareas");
+                break;
+            }
+            "listar" => {
+                tareas.listar();
+            }
+            "guardar" => {
+                tareas.guardar();
+            }
+            "cargar" => {
+                tareas = Tareas::cargar();
+            }
+            "agregar" => {
+                if entrada.len() < 2 {
+                    println!("\nLa descripción es requerida.");
+                    continue;
+                }
+                let descripcion = entrada[1..].join(" ");
+                tareas.agregar(&descripcion);
+            }
+            "agregar_subtarea" => {
+                if entrada.len() < 3 {
+                    println!("\nID de la tarea padre y descripción son requeridos.");
+                    continue;
+                }
+                let id_padre: usize = match entrada[1].parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("\nID de la tarea padre inválido. Debe ser un número.");
+                        continue;
+                    }
+                };
+                let descripcion = entrada[2..].join(" ");
+                tareas.agregar_subtarea(id_padre, &descripcion);
+            }
+            "completar" => {
+                if entrada.len() < 2 {
                     println!("\nID inválido. Debe ser un número.");
                     continue;
                 }
-            };
-            if id > 0 && id <= tareas.len() {
-                tareas[id - 1].completada = true;
-                println!("\nTarea {} marcada como completada.", id);
-            } else {
-                println!("\nID de tarea no válido.");
+                let id: usize = match entrada[1].parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("\nID inválido. Debe ser un número.");
+                        continue;
+                    }
+                };
+                tareas.completar(id);
             }
-        } else {
-            println!("\nComando no reconocido. Intenta de nuevo.");
+            "etiquetar" => {
+                if entrada.len() < 3 {
+                    println!("\nID y etiqueta son requeridos.");
+                    continue;
+                }
+                let id: usize = match entrada[1].parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("\nID inválido. Debe ser un número.");
+                        continue;
+                    }
+                };
+                let etiqueta = entrada[2..].join(" ");
+                tareas.etiquetar(id, &etiqueta);
+            }
+            "reordenar" => {
+                tareas.tareas.sort();
+                tareas.listar();
+            }
+            "priorizar" => {
+                if entrada.len() < 3 {
+                    println!("\nID y prioridad son requeridos.");
+                    continue;
+                }
+                let id: usize = match entrada[1].parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("\nID inválido. Debe ser un número.");
+                        continue;
+                    }
+                };
+                let prioridad: u32 = match entrada[2].parse() {
+                    Ok(num) => num,
+                    Err(_) => {
+                        println!("\nPrioridad inválida. Debe ser un número.");
+                        continue;
+                    }
+                };
+                tareas.priorizar(id, prioridad);
+            }
+            _ => {
+                println!("\nComando no reconocido. Intenta de nuevo.");
+            }
         }
-
     }
 }
-
-fn listar_tareas(lista_de_tareas: &Vec<Tarea>) {
-    println!("\nLista de Tareas:");
-    
-    for (i, tarea) in lista_de_tareas.iter().enumerate() {
-        tarea.mostrar(i + 1);
-    }
-}
-
-/* 
-    Desafio uno:
-        Refactorizar el codigo con un match en vez de if, else if, else
-    
-    Desafio dos:
-        Guardar las tareas en un archivo
-
-    Desafio tres:
-        Investigar el crate serde y como se usaria para serializar y deserializar las tareas
-    
-    Desafio cuatro:
-        Cargar las tareas desde un archivo al iniciar el programa 
-
- */

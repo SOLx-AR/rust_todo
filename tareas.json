@@ -1,0 +1,50 @@
+[
+  {
+    "id": "d4f9aace-2b39-4888-8331-ae7bd900a2e0",
+    "parent_id": null,
+    "descripcion": "hola2",
+    "completada": false,
+    "etiquetas": [],
+    "prioridad": 0
+  },
+  {
+    "id": "9490b6d8-f89b-48e8-a3f3-0745ccce1f20",
+    "parent_id": null,
+    "descripcion": "hola3",
+    "completada": false,
+    "etiquetas": [],
+    "prioridad": 0
+  },
+  {
+    "id": "8c66c29c-57bf-40d3-b43f-e0eecce9d509",
+    "parent_id": "9490b6d8-f89b-48e8-a3f3-0745ccce1f20",
+    "descripcion": "que tal 3",
+    "completada": false,
+    "etiquetas": [],
+    "prioridad": 0
+  },
+  {
+    "id": "be4d2177-55bf-4740-a2ec-3c17a42a331c",
+    "parent_id": "9490b6d8-f89b-48e8-a3f3-0745ccce1f20",
+    "descripcion": "todo bien ?",
+    "completada": false,
+    "etiquetas": [],
+    "prioridad": 0
+  },
+  {
+    "id": "5de87a06-ed67-454e-9809-8af79fc51f0e",
+    "parent_id": null,
+    "descripcion": "hola1",
+    "completada": true,
+    "etiquetas": [],
+    "prioridad": 0
+  },
+  {
+    "id": "f9c1a2a6-19da-4998-bac0-010416cc353f",
+    "parent_id": "5de87a06-ed67-454e-9809-8af79fc51f0e",
+    "descripcion": "sub1 de hola1",
+    "completada": true,
+    "etiquetas": [],
+    "prioridad": 0
+  }
+]
