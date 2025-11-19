@@ -1,0 +1,35 @@
+# Settings.toml
+
+[storage]
+filename_base = "tareas"
+format = "bincode"
+
+[comandos]
+"añadir" = "agregar" # <- Poner esta clave entre comillas
+listar = "listar"
+completar = "completar"
+importar_y_sumar = "importar"
+reemplazar_con_archivo = "cargar"
+ayuda = "explicar"
+desmarcar = "desmarcar"
+eliminar = "eliminar"
+eliminar_todas = "eliminar_todas"
+etiquetar = "etiquetar"
+desetiquetar = "desetiquetar"
+
+
+[explicaciones]
+"añadir" = "Uso: añadir <descripción de la tarea>. Agrega una nueva tarea a la lista."
+listar = "Uso: listar. Muestra todas las tareas pendientes y completadas."
+completar = "Uso: completar <número de la tarea>. Marca una tarea como completada."
+importar_y_sumar = "Uso: importar_y_sumar <ruta_al_archivo>. Agrega tareas de un archivo a la lista actual."
+reemplazar_con_archivo = "Uso: reemplazar_con_archivo <ruta_al_archivo>. Borra la lista actual y la reemplaza con las tareas del archivo."
+ayuda = "Uso: ayuda <nombre_del_comando>. Muestra la ayuda para un comando específico."
+desmarcar = "Uso: desmarcar <número de la tarea>. Vuelve a marcar una tarea como pendiente."
+eliminar = "Uso: eliminar <número de tarea>. Elimina una tarea de la lista."
+eliminar_todas = "Uso: eliminar_todas. Elimina permanentemente todas las tareas y el archivo de guardado."
+etiquetar = "Uso: etiquetar <número de tarea> <nombre_del_tag>. Agrega una etiqueta a una tarea."
+desetiquetar = "Uso: desetiquetar <número de tarea> <nombre_del_tag>. Elimina una etiqueta de una tarea."
+
+[general]
+tags_validos = ["trabajo", "personal", "urgente", "estudio"]
